@@ -1,8 +1,19 @@
 name: CI
 
+# `push` só na branch default; todo o resto é coberto por `pull_request`.
+#
+# Com `push: ["**"]` e `pull_request` juntos, cada commit de uma branch com PR
+# aberto dispara DOIS runs completos do mesmo SHA. O `concurrency` abaixo NÃO
+# deduplica: a chave usa `github.ref`, que é `refs/heads/<branch>` no push e
+# `refs/pull/<n>/merge` no pull_request — grupos diferentes, zero cancelamento.
+# Medido em repo gerado: o mesmo SHA com um run `success` e outro `failure`.
+#
+# Remover `pull_request` também mataria a duplicação, mas deixaria PR de fork sem
+# CI nenhum (o push do fork não dispara no repo base) — e este template é público.
+# Fixado por teste: tests/test_ci_wiring.py
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
     branches: ["**"]
 
